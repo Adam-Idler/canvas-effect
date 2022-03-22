@@ -34,8 +34,12 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('touchmove', (e) => {
-  mouse.x = e.x;
-  mouse.y = e.y;
+  e.preventDefault();
+  let touches = e.changedTouches[0];
+
+  mouse.x = touches.clientX;
+  mouse.y = touches.clientY;
+  
   for (let i = 0; i < particlesCount; i++) {
     particlesArray.push(new Particle());
   }
