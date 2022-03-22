@@ -33,6 +33,14 @@ canvas.addEventListener('mousemove', (e) => {
   }
 });
 
+canvas.addEventListener('touchstart', (e) => {
+  mouse.x = e.x;
+  mouse.y = e.y;
+  for (let i = 0; i < particlesCount; i++) {
+    particlesArray.push(new Particle());
+  }
+});
+
 class Particle {
   constructor() {
     this.x = mouse.x;
