@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../style.css">
+  <title>Crossover</title>
+</head>
+
+<body>
+  <canvas id="canvas1"></canvas>
+
+  <script>
+    const canvas = document.querySelector('#canvas1');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const particlesArray = [];
+    let hue = 0;
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const mouse = {
+      x: -30,
+      y: -30,
+      radius: 70
+    }
+
+    const particlesCount = 2;
+
+    canvas.addEventListener('click', (e) => {
+      mouse.x = e.x;
+      mouse.y = e.y;
+      for (let i = 0; i < particlesCount; i++) {
+        particlesArray.push(new Particle());
+      }
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      let touches = e.changedTouches[0];
+
+      mouse.x = touches.clientX;
+      mouse.y = touches.clientY;
+
+      for (let i = 0; i < particlesCount; i++) {
+        particlesArray.push(new Particle());
+      }
+    });
+
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 10 + 1;
+        this.speedX = Math.random() * 3.5 - 1.5;
+        this.speedY = Math.random() * 3.5 - 1.5;
+        this.color = `hsl(${hue}, 100%, 50%)`;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.size > 0.2) this.size -= 0.1;
+      }
+
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    function handleParticles() {
+      for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+        particlesArray[i].draw();
+
+        for (let j = i; j < particlesArray.length; j++) {
+          const dx = particlesArray[i].x - particlesArray[j].x;
+          const dy = particlesArray[i].y - particlesArray[j].y;
+          const distance = Math.sqrt(dx ** 2 + dy ** 2);
+
+          if (distance < 100) {
+            ctx.beginPath();
+            ctx.strokeStyle = particlesArray[i].color;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+            ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+            ctx.stroke();
+            ctx.closePath();
+          }
+        }
+
+        if (particlesArray[i].size <= 0.3) {
+          particlesArray.splice(i, 1);
+          i--;
+        }
+      };
+    }
+
+    function animate() {
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      mouse.x += 14;
+      mouse.y += 10;
+      for (let i = 0; i < particlesCount; i++) {
+        particlesArray.push(new Particle(mouse.x, mouse.y));
+      }
+      if (mouse.x > canvas.width) {
+        mouse.x = 0;
+      }
+      if (mouse.y > canvas.height) {
+        mouse.y = 0;
+      }
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      handleParticles();
+      hue += 2;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    let adjustX = 0;
+    let adjustY = 0;
+    let particlesArray1 = [];
+
+    const mouse2 = {
+      radius: 70
+    }
+
+    ctx.fillStyle = 'white';
+    ctx.font = '18px Verdana';
+    ctx.fillText('Саша', 30, 30);
+    const textCoordinates = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    class Particle1 {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.initialColor = 'white';
+        this.color = this.initialColor;
+        this.activeColor = 'hsl(0, 100%, 50%)';
+        this.distanceToMouse = undefined;
+        this.size = 3;
+        this.baseX = this.x;
+        this.baseY = this.y;
+        this.density = (Math.random() * 20);
+      }
+
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      update() {
+        let dx = mouse.x - this.x;
+        let dy = mouse.y - this.y;
+        this.distanceToMouse = Math.sqrt(dx * dx + dy * dy);
+        let forceDirectionX = dx / this.distanceToMouse;
+        let forceDirectionY = dy / this.distanceToMouse;
+        let maxDistance = mouse.radius;
+        let force = (maxDistance - this.distanceToMouse) / maxDistance;
+        let directionX = forceDirectionX * force * this.density;
+        let directionY = forceDirectionY * force * this.density;
+
+        if (this.distanceToMouse < mouse.radius) {
+          this.x -= directionX;
+          this.y -= directionY;
+          this.color = `hsl(${hue}, 100%, 50%)`;
+        } else {
+          if (this.x !== this.baseX) {
+            let dx = this.x - this.baseX;
+            this.x -= dx / 10;
+          }
+          if (this.y !== this.baseY) {
+            let dy = this.y - this.baseY;
+            this.y -= dy / 10;
+          }
+          this.color = this.initialColor;
+        }
+      }
+    }
+
+    function init1() {
+      particlesArray1.array = 0;
+      for (let y = 0; y < textCoordinates.height; y++) {
+        for (let x = 0; x < textCoordinates.width; x++) {
+          if (textCoordinates.data[(y * 4 * textCoordinates.width) + (x * 4) + 3] > 120) {
+            let positionX = x + adjustX;
+            let positionY = y + adjustY;
+            let distance = 10;
+            particlesArray1.push(new Particle1(positionX * distance, positionY * distance));
+          }
+        }
+      }
+    }
+    init1();
+
+    function animate1() {
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particlesArray1.forEach(particle => {
+        particle.draw();
+        particle.update();
+      });
+      connect();
+      requestAnimationFrame(animate1);
+    }
+    animate1();
+
+    function connect() {
+      for (let a = 0; a < particlesArray1.length; a++) {
+        for (let b = a; b < particlesArray1.length; b++) {
+          let dx = particlesArray1[a].x - particlesArray1[b].x;
+          let dy = particlesArray1[a].y - particlesArray1[b].y;
+
+          let distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 18) {
+            opacityValue = 1 - (distance / 50);
+
+            if (particlesArray1[a].distanceToMouse < mouse.radius) {
+              ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+            } else {
+              ctx.strokeStyle = particlesArray1[a].initialColor;
+            }
+
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(particlesArray1[a].x, particlesArray1[a].y);
+            ctx.lineTo(particlesArray1[b].x, particlesArray1[b].y);
+            ctx.stroke();
+            ctx.closePath();
+          }
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -15,7 +15,7 @@ const mouse = {
   y: undefined
 }
 
-const particlesCount = 5;
+const particlesCount = 3;
 
 canvas.addEventListener('click', (e) => {
   mouse.x = e.x;
@@ -83,7 +83,7 @@ function handleParticles() {
       if (distance < 100) {
         ctx.beginPath();
         ctx.strokeStyle = particlesArray[i].color;
-        ctx.lineWidth = 0.2;
+        ctx.lineWidth = 0.5;
         ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
         ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
         ctx.stroke();
@@ -103,7 +103,7 @@ function animate() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   handleParticles();
-  hue += 1.2;
+  hue += 2;
   requestAnimationFrame(animate);
 }
 

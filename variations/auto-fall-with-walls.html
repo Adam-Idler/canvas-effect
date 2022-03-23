@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../style.css">
+  <title>Auto Fall</title>
+</head>
+
+<body>
+  <canvas id="canvas1"></canvas>
+
+  <script>
+    const canvas = document.querySelector('#canvas1');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const particlesArray = [];
+    let hue = 0;
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const mouse = {
+      x: 0,
+      y: 0,
+      radius: 70
+    }
+
+    const particlesCount = 4;
+
+    canvas.addEventListener('click', (e) => {
+      mouse.x = e.x;
+      mouse.y = e.y;
+      for (let i = 0; i < particlesCount; i++) {
+        particlesArray.push(new Particle());
+      }
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      let touches = e.changedTouches[0];
+
+      mouse.x = touches.clientX;
+      mouse.y = touches.clientY;
+
+      for (let i = 0; i < particlesCount; i++) {
+        particlesArray.push(new Particle());
+      }
+    });
+
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 10 + 1;
+        this.speedX = Math.random() * 3.5 - 1.5;
+        this.speedY = Math.random() * 3.5 - 1.5;
+        this.color = `hsl(${hue}, 100%, 50%)`;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.size > 0.2) this.size -= 0.1;
+      }
+
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    function handleParticles() {
+      for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+        particlesArray[i].draw();
+
+        for (let j = i; j < particlesArray.length; j++) {
+          const dx = particlesArray[i].x - particlesArray[j].x;
+          const dy = particlesArray[i].y - particlesArray[j].y;
+          const distance = Math.sqrt(dx ** 2 + dy ** 2);
+
+          if (distance < 100) {
+            ctx.beginPath();
+            ctx.strokeStyle = particlesArray[i].color;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+            ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+            ctx.stroke();
+            ctx.closePath();
+          }
+        }
+
+        if (particlesArray[i].size <= 0.3) {
+          particlesArray.splice(i, 1);
+          i--;
+        }
+      };
+    }
+
+    let speedX = 10;
+    let speedY = 10;
+    function animate() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      mouse.x += speedX;
+      mouse.y += speedY;
+      for (let i = 0; i < particlesCount; i++) {
+        particlesArray.push(new Particle(mouse.x, mouse.y));
+      }
+      if (mouse.x > canvas.width || mouse.x < 0) {
+        speedX = -speedX - Math.random() * 5 - 5;
+      }
+      if (mouse.y > canvas.height || mouse.y < 0) {
+        speedY = -speedY - Math.random() * 5 - 5;
+      }
+      
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      handleParticles();
+      hue += 2;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+
+</html>
