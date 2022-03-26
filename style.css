@@ -1,3 +1,25 @@
+nav {
+    position: absolute;
+    z-index: 100;
+    width: 40%;
+}
+
+ul {
+    display: flex;
+    justify-content: space-between;
+}
+
+a {
+    text-decoration: none;
+    color: #fff;
+    transition: text-decoration .3s, opacity .3s;
+}
+
+a:hover {
+    text-decoration: underline;
+    opacity: .7;
+}
+
 #canvas1 {
     position: absolute;
     background-color: #000;

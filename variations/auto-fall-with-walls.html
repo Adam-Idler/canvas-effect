@@ -10,6 +10,15 @@
 </head>
 
 <body>
+  <nav>
+    <ul>
+        <li><a href="../index.html">Main</a></li>
+        <li><a href="./auto-fall.html">Auto fall</a></li>
+        <li><a href="./auto-fall-with-walls.html">Auto Fall With Walls</a></li>
+        <li><a href="./crossover.html">Crossover with Text Effect</a></li>
+    </ul>
+  </nav>
+
   <canvas id="canvas1"></canvas>
 
   <script>
@@ -110,16 +119,19 @@
     let speedY = 10;
     function animate() {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      
+      if (mouse.x >= canvas.width || mouse.x < 0) {
+        speedX = -speedX + 0.5;
+      }
+      else if (mouse.y >= canvas.height || mouse.y < 0) {
+        speedY = -speedY + 0.5;
+      }
+
       mouse.x += speedX;
       mouse.y += speedY;
+
       for (let i = 0; i < particlesCount; i++) {
         particlesArray.push(new Particle(mouse.x, mouse.y));
-      }
-      if (mouse.x > canvas.width || mouse.x < 0) {
-        speedX = -speedX - Math.random() * 5 - 5;
-      }
-      if (mouse.y > canvas.height || mouse.y < 0) {
-        speedY = -speedY - Math.random() * 5 - 5;
       }
       
       ctx.fillRect(0, 0, canvas.width, canvas.height)
